@@ -1,0 +1,207 @@
+Question,Ground Truth,Context,Groundedness,Answer Relevance,Context Relevance
+What are the differences between the RRC_IDLE and RRC_INACTIVE states in terms of UE behavior?,"In RRC_IDLE, the UE camps on a cell, monitors system information, and performs paging while not connected. In RRC_INACTIVE, the UE maintains a context with the network but does not actively transmit or receive, allowing faster resumption of connection. Both states share procedures like PLMN selection and cell reselection.","Based on the provided 3GPP TS 38.304 V16.11.0 (2024-12) document, the main differences between the RRC_IDLE and RRC_INACTIVE states in terms of UE behavior are:
+
+1. **RNA Update**: The RRC_INACTIVE state requires RNA update, while the RRC_IDLE state does not.
+2. **Cell Selection and Reselection**: Both states allow cell selection and reselection, but the RRC_INACTIVE state requires the UE to register its presence in a RAN-based notification area (RNA).
+3. **Service Types**: The RRC_IDLE state provides three levels of service:
+	* Limited service (emergency calls, ETWS, and CMAS on an acceptable cell)
+	* Normal service (for public use or non-public use on a suitable cell)
+	* Operator service (for operators only on a reserved cell)
+In contrast, the RRC_INACTIVE state provides only two levels of service:
+	* Normal service (for public use or non-public use on a suitable cell)
+	* Operator service (for operators only on a reserved cell)
+4. **Cell Categories**: The RRC_IDLE state allows the UE to camp on an ""acceptable cell"" to obtain limited service, while the RRC_INACTIVE state requires the UE to camp on a cell that fulfills specific requirements to obtain normal or operator service.
+5. **Paging and System Information**: The RRC_IDLE state allows the UE to monitor Short Messages transmitted with P-RNTI over DCI and relevant System Information, while the RRC_INACTIVE state requires the UE to monitor System Information changes and acquire or re-acquire concerned system information.
+6. **MICO Mode**: The RRC_IDLE state allows the UE to deactivate the AS layer when MICO mode is activated, while the RRC_INACTIVE state does not have this specific behavior.
+
+In summary, the RRC_IDLE state provides more flexibility and allows the UE to camp on an ""acceptable cell"" to obtain limited service, while the RRC_INACTIVE state requires the UE to register its presence in a RNA and camp on a cell that fulfills specific requirements to obtain normal or operator service.",0.95,0.9,0.9
+How does the UE determine a 'suitable cell' for camping? Which parameters does it evaluate?,"A 'suitable cell' is determined based on criteria like signal strength (Srxlev), signal quality (Squal), and whether the cell belongs to the selected PLMN or SNPN. The cell must not be barred or restricted.","According to the 3GPP TS 38.304 V16.11.0 (2024-12), a 'suitable cell' for camping is determined by the UE based on the cell reselection criteria specified in clause 5.1.1.2.
+
+The UE evaluates the following parameters to determine a 'suitable cell' for camping:
+
+1. Cell quality: The UE evaluates the cell quality based on the Srxlev (signal-to-receive power ratio) and Squal (signal quality) of the cell.
+2. Cell parameters: The UE evaluates the cell parameters such as the frequency, RAT, and other relevant parameters.
+3. RangeToBestCell: If configured, the UE uses the rangeToBestCell parameter to determine the number of beams that can be used for selection of the highest ranked cell.
+4. absThreshSS-BlocksConsolidation: The UE uses the absThreshSS-BlocksConsolidation parameter to determine the minimum threshold for beams which can be used for selection of the highest ranked cells.
+5. Qoffsets,n: The UE uses the Qoffsets,n parameter to determine the offset between the two cells.
+6. Qhyst: The UE uses the Qhyst parameter to determine the hysteresis value for ranking criteria.
+7. Qoffsettemp: The UE uses the Qoffsettemp parameter to determine the additional offset to be used for cell selection and re-selection.
+8. Cell reservations, access restrictions, or unsuitable for normal camping: The UE checks if the cell is reserved, has access restrictions, or is unsuitable for normal camping according to the rules in clause 5.3.1.
+
+The UE evaluates these parameters to determine if a cell is suitable for camping, and if so, it selects that cell as the 'suitable cell' for camping.",0.95,0.9,0.9
+What are the procedures the UE follows during PLMN selection in both automatic and manual modes?,"In automatic mode, the UE searches for and selects a PLMN based on pre-configured priority lists or previously stored information. In manual mode, the user selects the PLMN from a list of available networks provided by the UE after scanning.","Based on the provided text, here are the procedures the UE follows during PLMN selection in both automatic and manual modes:
+
+**Automatic Mode:**
+
+1. The UE receives a request from the NAS to select a PLMN.
+2. The UE searches for available PLMNs in the NR bands according to its capabilities.
+3. On each carrier, the UE searches for the strongest cell and reads its system information to find out which PLMN(s) the cell belongs to and any associated CAG(s).
+4. The UE reports the available PLMNs to the NAS, including their corresponding RSRP values and any associated CAG-ID.
+5. The UE selects a suitable cell of the selected PLMN to camp on.
+6. If the new cell does not belong to at least one tracking area to which the UE is registered, location registration is performed.
+7. If the new cell does not belong to the configured RNA, an RNA update procedure is performed.
+
+**Manual Mode:**
+
+1. The UE receives a request from the NAS to search for available CAGs.
+2. The UE searches for available CAGs and reports them to the NAS, including their HRNN (if broadcast) and PLMN(s).
+3. The UE selects a CAG and requests the NAS to select a cell belonging to this CAG.
+4. The UE performs measurements needed to support cell selection.
+5. The UE detects and synchronizes to a broadcast channel.
+6. The UE receives and handles broadcast information.
+7. The UE forwards NAS system information to the NAS.
+8. The UE searches for a suitable cell that belongs to the selected CAG.
+9. If the UE finds a more suitable cell, it reselects onto that cell and camps on it.
+10. If the new cell does not belong to at least one tracking area to which the UE is registered, location registration is performed.
+11. If the new cell does not belong to the configured RNA, an RNA update procedure is performed.
+
+Note that in both automatic and manual modes, the UE may use stored information, such as frequencies and cell parameters, to optimize the search for PLMNs or CAGs.",0.98,0.95,0.99
+How does the UE process paging messages in RRC_IDLE versus RRC_INACTIVE?,"In RRC_IDLE, the UE listens for paging in all tracking areas where it is registered. In RRC_INACTIVE, paging is restricted to a configured RNA (RAN-based Notification Area), reducing power consumption.","Based on the provided text, here's how the UE processes paging messages in RRC_IDLE versus RRC_INACTIVE:
+
+**RRC_IDLE:**
+
+1. The UE monitors Short Messages transmitted with P-RNTI over DCI as specified in clause 6.5 in TS 38.331 [3].
+2. The UE monitors relevant System Information as specified in TS 38.331 [3].
+3. The UE performs necessary measurements for the cell reselection evaluation procedure.
+4. The UE executes the cell reselection evaluation process on the following occasions/triggers:
+   - UE internal triggers, so as to meet performance as specified in TS 38.133 [8].
+   - When information on the BCCH used for the cell reselection evaluation procedure has been modified.
+
+**RRC_INACTIVE:**
+
+1. The UE moves to RRC_IDLE and informs NAS when it receives a CN-initiated paging in RRC_INACTIVE state.
+2. The UE monitors Short Messages transmitted with P-RNTI over DCI as specified in clause 6.5 in TS 38.331 [3].
+3. The UE monitors relevant System Information as specified in TS 38.331 [3].
+4. The UE performs necessary measurements for the cell reselection evaluation procedure.
+5. The UE executes the cell reselection evaluation process on the following occasions/triggers:
+   - UE internal triggers, so as to meet performance as specified in TS 38.133 [8].
+   - When information on the BCCH used for the cell reselection evaluation procedure has been modified.
+
+In both RRC_IDLE and RRC_INACTIVE states, the UE processes paging messages by monitoring Short Messages and System Information, performing necessary measurements, and executing the cell reselection evaluation process. However, in RRC_INACTIVE state, the UE moves to RRC_IDLE and informs NAS when it receives a CN-initiated paging.",0.9,0.8,0.9
+"What is the significance of TreselectionNR, and how does it impact cell reselection?",TreselectionNR is a timer that defines the duration a target cell must meet reselection criteria before the UE reselects. It ensures stability by preventing rapid and unnecessary reselection events.,"TreselectionNR is the cell reselection timer value for NR (New Radio) frequencies. It specifies the time interval during which the UE evaluates reselection within NR or towards other RAT (Radio Access Technology) frequencies.
+
+The significance of TreselectionNR is that it determines how long the UE waits before reevaluating the current serving cell and considering reselection to a new cell. This timer value is used by the UE to decide whether to reselect a new cell based on the cell reselection criteria specified in the system information.
+
+If the UE is in the RRC_INACTIVE state, TreselectionNR is used to determine when the UE transitions from RRC_INACTIVE to RRC_IDLE and performs actions as specified in TS 38.331 [3].
+
+In general, TreselectionNR impacts cell reselection in the following ways:
+
+1.  It determines the time interval during which the UE evaluates reselection within NR or towards other RAT frequencies.
+2.  It affects the decision-making process of the UE when reselecting a new cell based on the cell reselection criteria.
+3.  It influences the UE's behavior when transitioning from RRC_INACTIVE to RRC_IDLE and performing actions as specified in TS 38.331 [3].
+
+In summary, TreselectionNR is an important parameter that affects the UE's reselection behavior, particularly when reselecting within NR or towards other RAT frequencies.",0.98,0.95,0.99
+What are the key components of PLMN selection in the UE?,"The key components are searching for available PLMNs, evaluating their signal quality, and selecting based on automatic or manual input, while considering priority configurations provided by NAS.","The key components of PLMN (Public Land Mobile Network) selection in the UE (User Equipment) are:
+
+1. **List of Forbidden Tracking Areas**: The UE maintains a list of tracking areas that it is not allowed to access, and provides this list to the AS (Access Stratum).
+2. **List of Equivalent PLMNs**: The NAS (Network Application Server) provides a list of equivalent PLMNs, if available, that the AS shall use for cell selection and cell reselection.
+3. **Cell Selection Criteria**: The UE uses cell selection criteria to select a suitable cell from the available PLMNs.
+4. **RAT (Radio Access Technology) Selection**: The UE selects the RAT (e.g. NR, E-UTRA) to use for cell selection and cell reselection.
+5. **PLMN Identity**: The UE receives the PLMN identity from the broadcast channel and uses it to select the PLMN.
+6. **CAG (Cell Global Identity) Selection**: The UE selects a CAG (Cell Global Identity) from the available CAGs and uses it to select a cell.
+7. **Measurement Control Information Elements**: The UE uses measurement control information elements to optimize PLMN search and cell selection.
+8. **Cell Selection Procedure**: The UE performs the cell selection procedure to select a suitable cell from the available PLMNs.
+9. **Cell Reselection Procedure**: The UE performs the cell reselection procedure to reselect onto a more suitable cell if the current cell is not optimal.
+
+These components work together to enable the UE to select a suitable PLMN and cell for communication with the network.",0.98,0.95,0.99
+How does the UE behave when no suitable cell is found during initial cell selection?,The UE continues scanning all RF channels in the NR bands or falls back to manual selection to find a suitable cell.,"According to the 3GPP TS 38.304 V16.11.0 (2024-12) document, when no suitable cell is found during initial cell selection, the UE shall:
+
+1. Move to idle mode.
+2. If a suitable cell is found later, the UE shall move to camped on any cell state.
+
+In other words, if the UE cannot find a suitable cell during the initial cell selection process, it will transition to idle mode and wait for a suitable cell to be found. If a suitable cell is found later, the UE will transition to the camped on any cell state.",0.9,0.9,0.9
+What triggers a UE to perform inter-frequency cell reselection?,"Inter-frequency cell reselection is triggered when the serving cell's quality falls below a threshold (e.g., Squal < ThreshServing,LowQ) and a higher-priority cell meets reselection criteria.","According to 3GPP TS 38.304 V16.11.0 (2024-12), a UE performs inter-frequency cell reselection in the following scenarios:
+
+1. If the highest-ranked cell or best cell according to absolute priority reselection rules is an inter-RAT cell which is not suitable due to being part of the ""list of forbidden TAs for roaming"" or belonging to a PLMN which is not indicated as being equivalent to the registered PLMN, the UE shall not consider this cell and other cells on the same frequency as candidates for reselection for a maximum of 300 seconds.
+2. If the UE has selected a cell on a non-serving frequency for V2X sidelink communication, it shall perform additional intra-frequency reselection process to select a better cell for sidelink operation on that frequency in accordance with clause 8.2.1.
+3. If the UE enters into state any cell selection, any limitation shall be removed. If the UE is redirected under NR control to a frequency for which the timer is running, the limitation(s) on that frequency shall be removed.
+4. If the highest-priority frequency is an NR frequency, the highest-ranked cell among the cells on the highest-priority frequency(ies) meeting the criteria according to clause 5.2.4.6.
+5. If the highest-priority frequency is from another RAT, the strongest cell among the cells on the highest-priority frequency(ies) meeting the criteria of that RAT.
+
+In general, inter-frequency cell reselection is triggered by the following conditions:
+
+* The UE has selected a cell on a non-serving frequency for V2X sidelink communication.
+* The UE has entered into state any cell selection.
+* The UE is redirected under NR control to a frequency for which the timer is running.
+* The highest-priority frequency is an NR frequency, and the highest-ranked cell among the cells on that frequency meets the criteria.
+* The highest-priority frequency is from another RAT, and the strongest cell among the cells on that frequency meets the criteria.",0.9,0.9,0.9
+What is the importance of Srxlev and Squal in cell reselection?,"Srxlev measures signal strength, and Squal evaluates signal quality. Both must satisfy specific thresholds for a cell to be considered for reselection.","In cell reselection, Srxlev (RX level) and Squal (quality) are two critical parameters that play a crucial role in determining the suitability of a cell for reselection.
+
+Srxlev (RX level) represents the strength of the received signal in the cell, measured in decibels (dB). A higher Srxlev value indicates a stronger signal, while a lower value indicates a weaker signal. In cell reselection, the UE evaluates the Srxlev of non-serving cells to determine if they can be used as an alternative to the current serving cell.
+
+Squal (quality) represents the overall quality of the received signal in the cell, also measured in decibels (dB). A higher Squal value indicates a better signal quality, while a lower value indicates a poorer signal quality. In cell reselection, the UE evaluates the Squal of non-serving cells to determine if they can be used as an alternative to the current serving cell.
+
+The importance of Srxlev and Squal in cell reselection can be summarized as follows:
+
+1. **Signal strength**: Srxlev helps the UE determine if a non-serving cell has a stronger signal than the current serving cell. If the Srxlev of the non-serving cell is higher than the Srxlev of the serving cell, the UE may consider reselecting to that cell.
+2. **Signal quality**: Squal helps the UE determine if a non-serving cell has a better signal quality than the current serving cell. If the Squal of the non-serving cell is higher than the Squal of the serving cell, the UE may consider reselecting to that cell.
+3. **Ranking**: In the event of multiple cells meeting the reselection criteria, Srxlev and Squal help the UE rank the cells based on their signal strength and quality. The UE selects the highest-ranked cell as the new serving cell.
+4. **Thresholds**: Srxlev and Squal are used to set thresholds for cell reselection. For example, if the serving cell fulfills Srxlev < ThreshServing, LowP and a cell of a lower priority RAT/ frequency fulfills Srxlev > ThreshX, LowP during a time interval TreselectionRAT, the UE may reselect to the lower-priority cell.
+
+In summary, Srxlev and Squal are essential parameters in cell reselection, as they help the UE evaluate the suitability of non-serving cells and make informed decisions about reselection.",0.95,0.9,0.9
+What are the conditions under which the UE applies speed-dependent scaling for reselection parameters?,"The UE applies scaling when it detects medium or high mobility states, modifying timers like TreselectionNR to expedite reselection.","The UE applies speed-dependent scaling for reselection parameters under the following conditions:
+
+1. The UE is in High-mobility state.
+2. The UE is in Medium-mobility state.
+3. The UE is in Normal-mobility state, but the criteria for either Medium- or High-mobility state is not detected during time period TCRmaxHyst.
+
+In all cases, the UE applies the following scaling rules:
+
+1. If High-mobility state is detected:
+   - Add the sf-High of ""Speed dependent ScalingFactor for Qhyst"" to Qhyst if broadcasted in system information.
+   - For NR cells, multiply TreselectionNR by the sf-High of ""Speed dependent ScalingFactor for TreselectionNR"" if broadcasted in system information.
+   - For EUTRA cells, multiply TreselectionEUTRA by the sf-High of ""Speed dependent ScalingFactor for TreselectionEUTRA"" if broadcasted in system information.
+
+Note that the scaling is applied to the TreselectionRAT parameter, and the result is rounded up to the nearest second.",0.9,0.9,0.9
+How does the UE handle NAS-initiated PLMN reselection?,"The NAS provides a list of PLMNs to the UE, which searches for available cells in those networks and reselects based on priority.","According to TS 23.122 [9], the UE handles NAS-initiated PLMN reselection as follows:
+
+1. The NAS initiates a PLMN reselection procedure.
+2. The UE searches for a suitable cell that belongs to the selected PLMN.
+3. If a suitable cell is found, the UE camps on that cell.
+4. The UE reports the found PLMN identities that make the cell suitable to the NAS.
+5. The NAS is informed if the cell selection and reselection result in changes in the received NAS system information.
+
+In other words, the UE performs a search for a suitable cell that belongs to the selected PLMN, and if a suitable cell is found, it camps on that cell and reports the found PLMN identities to the NAS.",0.98,0.95,0.95
+What happens if a UE encounters a barred cell during reselection?,"Barred cells are excluded from reselection, and the UE continues searching for other suitable or acceptable cells.","According to the provided text, if a UE encounters a barred cell during reselection:
+
+- If the cell operates in licensed spectrum, or if this cell belongs to a PLMN which is indicated as being equivalent to the registered PLMN or the selected PLMN of the UE, or if this cell belongs to the registered SNPN or the selected SNPN of the UE:
+  - The UE shall not re-select to another cell on the same frequency as the barred cell and exclude such cell(s) as candidate(s) for cell selection/reselection for 300 seconds.
+
+- Else:
+  - The UE may select to another cell on the same frequency if the reselection criteria are fulfilled.
+  - The UE shall exclude the barred cell as a candidate for cell selection/reselection for 300 seconds.
+
+In all cases, the UE shall reselect the new cell, only if the following conditions are met:
+
+- The new cell is better than the serving cell according to the cell reselection criteria specified above during a time interval TreselectionRAT.
+- More than 1 second has elapsed since the UE camped on the current serving cell.",0.95,0.9,0.9
+What are the main differences between NR and E-UTRA cell selection criteria?,"NR cell selection considers additional metrics like SS/PBCH block measurements and relaxed measurement criteria, while E-UTRA relies more on conventional RSRP/RSRQ thresholds.","The main differences between NR and E-UTRA cell selection criteria are as follows:
+
+1. Cell Selection Criterion (S): 
+   - E-UTRA: Srxlev > 0 AND Squal > 0
+   - NR: Srxlev > 0 AND Squal > 0 (same as E-UTRA)
+
+2. Cell Selection Procedure:
+   - E-UTRA: The cell selection procedure is specified in TS 36.304 [7].
+   - NR: The cell selection procedure is specified in TS 38.304 [8].
+
+3. Reselection Priorities Handling:
+   - E-UTRA: The reselection priorities are specified in TS 36.304 [7].
+   - NR: The reselection priorities are specified in TS 38.304 [8] and are inherited from another RAT at inter-RAT cell (re)selection.
+
+4. Cell Reselection Evaluation Process:
+   - E-UTRA: The cell reselection evaluation process is specified in TS 36.304 [7].
+   - NR: The cell reselection evaluation process is specified in TS 38.304 [8].
+
+5. NR Inter-frequency and inter-RAT Cell Reselection Criteria:
+   - NR: If no acceptable cell is found according to the above, the UE not in SNPN Access Mode shall continue to search for an acceptable cell of any PLMN in state any cell selection.
+
+6. Cell Selection State:
+   - E-UTRA: The cell selection state is not specified in TS 36.304 [7].
+   - NR: The cell selection state is specified in TS 38.304 [8] and includes RRCIdle, RRC_INACTIVE, and Camped on Any Cell states.
+
+7. Cell Reselection Evaluation Process in NR:
+   - NR: The cell reselection evaluation process includes reselection priorities handling, cell selection criterion, and cell reselection evaluation process.
+
+In summary, while the cell selection criterion and procedure are similar between NR and E-UTRA, there are differences in the reselection priorities handling, cell reselection evaluation process, and cell selection state.",0.95,0.9,0.9
+Average Scores,,,0.9438461538461538,0.9076923076923078,0.9246153846153847
